@@ -1,0 +1,72 @@
+services:
+  sql:
+    image: ksmsky8385/myagent-sql:1.0
+    container_name: myagent-sql
+    platform: linux/amd64
+    restart: unless-stopped
+    env_file:
+      - local-db.env
+    volumes:
+      - myagent-sql-data:/var/lib/postgresql/data
+    networks:
+      myagent-network:
+        aliases:
+          - sql-headless
+
+  vector:
+    image: ksmsky8385/myagent-vector:1.0
+    container_name: myagent-vector
+    platform: linux/amd64
+    restart: unless-stopped
+    volumes:
+      - myagent-vector-data:/qdrant/storage
+    networks:
+      myagent-network:
+        aliases:
+          - vector-db-headless
+
+  api:
+    image: ksmsky8385/myagent-api:1.0
+    container_name: myagent-api
+    platform: linux/amd64
+    restart: unless-stopped
+    env_file:
+      - local-db.env
+      - docker-api.env
+    environment:
+      DATABASE_URL: ""
+      POSTGRES_HOST: sql-headless
+      POSTGRES_PORT: "5432"
+      VECTOR_DB_URL: http://vector-db-headless:6333
+      VECTOR_COLLECTION: api_documents
+      PORT: "8000"
+    depends_on:
+      - sql
+      - vector
+    networks:
+      myagent-network:
+        aliases:
+          - ai-app-service
+
+  front:
+    image: ksmsky8385/myagent-front:1.0
+    container_name: myagent-front
+    platform: linux/amd64
+    restart: unless-stopped
+    ports:
+      - "0.0.0.0:3000:80"
+    depends_on:
+      - api
+    networks:
+      - myagent-network
+
+volumes:
+  myagent-sql-data:
+    name: myagent-sql-data
+  myagent-vector-data:
+    name: myagent-vector-data
+
+networks:
+  myagent-network:
+    name: myagent-network
+    external: true
