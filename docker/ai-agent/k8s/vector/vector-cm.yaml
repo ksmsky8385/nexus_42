@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vector-cm
+data:
+  QDRANT__SERVICE__HTTP_PORT: "6333"
+  QDRANT__SERVICE__GRPC_PORT: "6334"

@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: api-cm
+data:
+  DATABASE_URL: ""
+  POSTGRES_HOST: sql-headless
+  POSTGRES_PORT: "5432"
+  POSTGRES_USER: frodo
+  POSTGRES_DB: frodo
+  VECTOR_DB_URL: http://vector-db-headless:6333
+  VECTOR_COLLECTION: api_documents
+  PORT: "8000"
